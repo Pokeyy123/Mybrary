@@ -148,10 +148,19 @@ async function renderFormPage(res, book, form, hasError = false) {
 }
 
 function saveCover(book, coverEncoded) {
-  if (coverEncoded == null) return
-  const cover = JSON.parse(coverEncoded)
+  if (!coverEncoded) return   // catches null, undefined, ""
+
+  let cover
+  try {
+    cover = JSON.parse(coverEncoded)
+  } catch (err) {
+    console.error("Invalid JSON:", coverEncoded)
+    params.errorMessage = "Error Creating book"
+    return
+  }
+
   if (cover != null && imageMimeTypes.includes(cover.type)) {
-    book.coverImage = new Buffer.from(cover.data, 'base64')
+    book.coverImage = Buffer.from(cover.data, 'base64')
     book.coverImageType = cover.type
   }
 }
